@@ -1,6 +1,8 @@
 # Rust stm32f103
 This is supposed to be a rust library for the STM32F103 microcontroller.
 
+Also see: http://rudi-horn.de/Home/4-compiling-rust-for-cortex-m
+
 ## Examples
 See: https://github.com/rudihorn/rust-stm32f103-examples
 
