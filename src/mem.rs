@@ -44,10 +44,9 @@ macro_rules! addr_of {
 
 pub unsafe fn init_mem() {
     // zero .bss section
-    //__aeabi_memclr(addr_of!(_bstart), addr_of!(_bend) as isize - addr_of!(_bstart) as isize);
-    __aeabi_memclr(addr_of!(_bstart), 0x50);
+    __aeabi_memclr(addr_of!(_bstart), addr_of!(_bend) as isize - addr_of!(_bstart) as isize);
     // copy .data section
-    //__aeabi_memcpy(addr_of!(_data), addr_of!(_etext), addr_of!(_edata) as isize - addr_of!(_data) as isize);
+    __aeabi_memcpy(addr_of!(_data), addr_of!(_etext), addr_of!(_edata) as isize - addr_of!(_data) as isize);
     
 }
 
