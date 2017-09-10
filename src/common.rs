@@ -22,6 +22,35 @@ pub fn clear(old : u32, bit : u32) -> u32 {
     return old & !(1u32 << bit);
 }
 
+#[macro_export]
+macro_rules! clear_bit {
+    ($reg:expr, $bit:expr) => (
+        unsafe { write_volatile(&mut($reg), read_volatile(&($reg)) & !(1u32 << $bit)) }
+    )
+}
+
+#[macro_export]
+macro_rules! set_bit {
+    ($reg:expr, $bit:expr) => (
+        unsafe { write_volatile(&mut($reg), read_volatile(&($reg)) | (1u32 << $bit)) }
+    )
+}
+
+#[macro_export]
+macro_rules! clear_bit_by_set {
+    ($reg:expr, $bit:expr) => (
+        unsafe { write_volatile(&mut($reg), (1u32 << $bit)) }
+    )
+}
+
+#[macro_export]
+macro_rules! read_bit {
+    ($reg:expr, $bit:expr) => (
+        unsafe { return (read_volatile(&($reg)) >> ($bit)) & 0b1 > 0 }
+    )
+}
+
+
 pub type Register = u32;
 
 pub trait Enableable {
@@ -40,13 +69,19 @@ impl Enableable for RegisterEnableBit {
 }
 
 #[macro_export]
-macro_rules! write_bit_fns {
-    ($name_en:ident, $name_dis:ident, $reg:ident, $pin:expr) => (
-        pub fn $name_en(&mut self) {
-            unsafe { write_volatile(&mut(self.$reg), common::set(read_volatile(&(self.$reg)), $pin)) };
-        }
+macro_rules! clear_bit_fn {
+    ($name_dis:ident, $reg:ident, $pin:expr) => (
         pub fn $name_dis(&mut self) {
             unsafe { write_volatile(&mut(self.$reg), common::clear(read_volatile(&(self.$reg)), $pin)) };
+        }
+    )
+}
+
+#[macro_export]
+macro_rules! set_bit_fn {
+    ($name_en:ident, $reg:ident, $pin:expr) => (
+        pub fn $name_en(&mut self) {
+            unsafe { write_volatile(&mut(self.$reg), common::set(read_volatile(&(self.$reg)), $pin)) };
         }
     )
 }
@@ -59,3 +94,20 @@ macro_rules! read_bit_fns {
         }
     )
 }
+
+#[macro_export]
+macro_rules! read_clear_bit_fns {
+    ($name_read:ident, $name_dis:ident, $reg:ident, $pin:expr) => (
+        read_bit_fns!($name_read, $reg, $pin);
+        clear_bit_fn!($name_dis, $reg, $pin);
+    )
+}
+
+#[macro_export]
+macro_rules! write_bit_fns {
+    ($name_en:ident, $name_dis:ident, $reg:ident, $pin:expr) => (
+        set_bit_fn!($name_en, $reg, $pin);
+        clear_bit_fn!($name_dis, $reg, $pin);
+    )
+}
+
